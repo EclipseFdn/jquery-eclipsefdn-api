@@ -28,7 +28,7 @@
     "watch": "NODE_ENV=development webpack --watch --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
   },
   "dependencies": {
-    "jquery": "1.9.1"
+    "jquery": "3.4.0"
   },
   "contributors": [
     {
