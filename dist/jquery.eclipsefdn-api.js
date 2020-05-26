@@ -40,7 +40,6 @@
       accountsUrl: "https://accounts.eclipse.org",
       newsroomUrl: "https://newsroom.eclipse.org/api"
     };
-
   // The actual plugin constructor
   function Plugin(element, options) {
     this.element = element;
@@ -52,6 +51,7 @@
     this._defaults = defaults;
     this._name = pluginName;
     this.init();
+    
   }
 
   // Avoid Plugin.prototype conflicts
@@ -73,7 +73,9 @@
         "errorReports",
         "mailingListSubscription",
         "newsItems",
-        "filteredEvents"
+        "filteredEvents",
+        "featuredStory",
+        "featuredFooter"
       ];
       if ($.type(this.settings.type) === "string" && $.inArray(this.settings.type, validTypes) !== -1) {
         this[this.settings.type]();
@@ -1940,7 +1942,17 @@
             + "</div>" 
             + "{{/events}}";
       }
-    }
+    },
+    featuredStory: function() {
+        var $container = $($(this)[0].element);
+		updateFeaturedContent($container, "story");
+	},
+    featuredFooter: function () {
+        var $container = $($(this)[0].element);
+		updateFeaturedContent($container, "footer");
+	}
+	
+	
   });
   
 
@@ -1954,7 +1966,58 @@
       }
     });
   };
-
+  
+  var updateFeaturedContent = function(container, type) {
+	var $container = $(container);
+	var url = $container.data("url");
+	$.ajax(url, {
+      success : function(data, textStatus, jqXHR) {
+        var json = JSON.parse(data).filter(function(a){ return new Date(a["endDate"]) > new Date() && (a["startDate"] === undefined || new Date(a["startDate"]) < new Date())})
+          .filter(function (a){ return a["type"] === "both" || a["type"] === type});
+        // shuffle the array so that a random available data is featured
+        if (json.length > 1) {
+          shuffleArray(json);
+        }
+        // make sure we have a promotion to display
+        if (json.length > 0) {
+          var item = json[0];
+          // if a banner img exists, set it
+          if (item["bgImgSrc"] !== undefined || item["bgImgSrc"] !== "") {
+            $container.append("<style>.featured-story-block-content:before {background-image:url(" + item["bgImgSrc"] + ")}</style>");
+            $container.attr("style", "background-size: cover");
+          }
+      
+          // get the content container and append the content
+          var $featuredContentContainer = $container.find(".featured-container");
+          // override featured-story classes
+          if (item[type+"_classes"] !== undefined && item[type+"_classes"] !== "") {
+            $container.attr("class", item[type+"_classes"]);
+          }
+          
+          // allow template ID to be set on a per run basis with a default.
+          var templateId = $container.data("template-id") || "template-featured-" + type;
+          var template = getMustacheTemplate(templateId, 
+            "{{#content}}" +
+            "{{#preamble}}<p class=\"{{ preamble_class }}\">{{{ value }}}</p>{{/preamble}}" +
+            "<h2 class=\"margin-top-30 {{ header_class }}\">{{{ title }}}</h2>" +
+            "<p class=\"{{ content_class }}\">{{{ content }}}</p>" +
+            "<span>{{#link}}<a class=\"{{ class }}\" href=\"{{ href }}\">{{ value }}</a>{{/link}}</span>" +
+            "{{#post_content}}<p class=\"{{ post_class }}\">{{{ value }}}</p>{{/post_content}}" +
+            "{{/content}}");
+          var rendered = Mustache.render(template, {
+            "content" : item
+          });
+          // set the container HTML to the rendered HTML
+          $featuredContentContainer.html(rendered);
+        }
+      },
+      error : function() {
+        // clear the loading placeholder
+        console.log("Could not load featured content!");
+    }});
+	
+  }
+  
   var convertDataToURLParameters = function(el, name, parameterName, defaultVal) {
 	  var dataValue = el.data(name) || defaultVal;
 	  var filter = "";
@@ -1966,5 +2029,27 @@
         filter += "&parameters%5B" + parameterName + "%5D=" + dataValue;
       }
       return filter;
+  };
+  
+  var getMustacheTemplate = function(templateId, defaultTemplate) {
+    var template = $("#" + templateId);
+    if (template !== undefined && template.length !== 0) {
+      return template[0].innerHTML;
+    }
+    return defaultTemplate;
+  }
+
+  /**
+   * Randomize array element order in-place. Using Durstenfeld shuffle algorithm.
+   * source:
+   * https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+   */	
+  var shuffleArray = function(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
   };
 })(jQuery, window, document);
