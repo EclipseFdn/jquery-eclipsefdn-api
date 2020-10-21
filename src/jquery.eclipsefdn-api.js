@@ -1709,6 +1709,7 @@
             var templateId = $parent.data("template-id") || "template-news-items";
             var template = getTemplate(templateId);
             var rendered = Mustache.render(template, { news: newsItems });
+            console.log(newsItems);
             // clear the container before creating elements
             $newsContainer.html(rendered);
 
