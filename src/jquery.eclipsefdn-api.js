@@ -1991,6 +1991,21 @@
         // make sure we have a promotion to display
         if (json.length > 0) {
           writeFeaturedContainer(json[0], $container, type);
+        } 
+        if (json.length === 0) {
+          let default_featured_story = {
+            id: "default-featured-story",
+            layout: "light",
+            title: "Eclipse Foundation Events",
+            body: "Join the world’s leading technologists and open source leaders at Eclipse Foundation events to share ideas, learn and collaborate.",
+            links: [
+              {
+              url: "https://events.eclipse.org",
+              title: "View Events"
+              }
+            ],
+          }
+          writeFeaturedContainer(default_featured_story, $container, "both");
         }
       },
       error: function() {
