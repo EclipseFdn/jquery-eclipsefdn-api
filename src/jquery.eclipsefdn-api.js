@@ -1991,8 +1991,8 @@
         // make sure we have a promotion to display
         if (json.length > 0) {
           writeFeaturedContainer(json[0], $container, type);
-        } 
-        if (json.length === 0) {
+        }
+        else {
           let default_featured_story = {
             id: "default-featured-story",
             layout: "light",
