@@ -1993,7 +1993,7 @@
           writeFeaturedContainer(json[0], $container, type);
         }
         else {
-          let default_featured_story = {
+          var default_featured_story = {
             id: "default-featured-story",
             layout: "light",
             title: "Eclipse Foundation Events",
