@@ -2049,7 +2049,6 @@
       };
       $.ajax(url, {
         dataType: "json",
-        contentType: "application/json",
         type: "POST",
         data: JSON.stringify(params),
         success: function(data) {
