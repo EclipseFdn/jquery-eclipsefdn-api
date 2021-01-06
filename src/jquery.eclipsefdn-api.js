@@ -61,7 +61,6 @@
         "forumsMsg",
         "gerritReviewCount",
         "projectsList",
-        "errorReports",
         "mailingListSubscription",
         "newsItems",
         "filteredEvents",
