@@ -1794,8 +1794,11 @@
       var params = {
         "host": window.location.host,
         "source": window.location.pathname,
-        "publish_to": $container.data("publish-target"),
+        "publish_to": $container.data("publish-target")
       };
+      if (typeof $container.data("id")  !== "undefined") {
+        url += "/" + $container.data("id");
+      }
       $.ajax(url, {
         dataType: "json",
         contentType: "application/json",
